@@ -11,23 +11,28 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(favicon(path.join(__dirname,'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname,'public', 'favicon.ico')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
-app.use(cookieParser);
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 
-app.get('/', function(req, res){
-	res.send("hello world");
-})
-
 
 
 //********* SOCKET STUFF  **********//
+
+// socket data from unity
 var io = require('socket.io')({
 	transports: ['websocket']
+})
+
+// socket connections for dashboard
+var dashboard_io = io.of('/dashboard');
+
+dashboard_io.on('connection', function(socket){
+	console.log("Dashboard viewer joined");
 })
 
 // SAVE VIEWER stats - eventually move to DB
@@ -41,7 +46,8 @@ io.on('connection', function(socket){
 	viewerStats[socket.id] = {
 		"heartCount":0,
 		"duration":0,
-		"active":true
+		"active":true,
+		"creator":null
 	}
 
 	console.log("TOTAL ACTIVE VIEWERS: " + totalActiveViewers());
@@ -59,7 +65,6 @@ io.on('connection', function(socket){
 		console.log("TOTAL HEARTS: " + totalHeartCount())
 	})
 
-	socket.on
 })
 
 // find total number of viewers who ever logged into this stream
