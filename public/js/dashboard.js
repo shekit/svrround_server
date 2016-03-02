@@ -5,9 +5,9 @@ $(document).ready(function(){
 	var activeViewers = $("#activeViewers");
 	var totalHearts = $("#totalHearts");
 
-	var io = io('http://localhost:3000/dashboard');
+	var socket = io('http://localhost:4567/dashboard');
 
-	io.on('stats', function(msg){
+	socket.on('stats', function(msg){
 		totalViewers.html(msg['totalViewers']);
 		activeViewers.html(msg['activeViewers']);
 		totalHearts.html(msg['totalHearts']);

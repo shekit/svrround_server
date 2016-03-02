@@ -28,8 +28,11 @@ var io = require('socket.io')({
 	transports: ['websocket']
 })
 
+io.attach(4567);
+
 // socket connections for dashboard
 var dashboardio = io.of('/dashboard');
+
 
 dashboardio.on('connection', function(socket){
 	console.log("Dashboard viewer joined");
@@ -38,7 +41,6 @@ dashboardio.on('connection', function(socket){
 // SAVE VIEWER stats - eventually move to DB
 var viewerStats = {}
 
-io.attach(4567);
 
 io.on('connection', function(socket){
 	console.log("Viewer connected")
@@ -59,10 +61,12 @@ io.on('connection', function(socket){
 		viewerStats[socket.id]["active"] = false;
 		console.log("TOTAL VIEWERS: " + totalViewers());
 		console.log("TOTAL ACTIVE VIEWERS: "+ totalActiveViewers())
+		emitUserStats();
 	})
 
 	socket.on('heartCount', function(data){
-		viewerStats[socket.id]["heartCount"] = data["heartCount"];
+		//viewerStats[socket.id]["heartCount"] = data["heartCount"];
+		viewerStats[socket.id]["heartCount"] += 1;
 		console.log("USER HEART COUNT: " + userHeartCount(socket.id))
 		console.log("TOTAL HEARTS: " + totalHeartCount())
 		emitUserStats()
