@@ -29,9 +29,9 @@ var io = require('socket.io')({
 })
 
 // socket connections for dashboard
-var dashboard_io = io.of('/dashboard');
+var dashboardio = io.of('/dashboard');
 
-dashboard_io.on('connection', function(socket){
+dashboardio.on('connection', function(socket){
 	console.log("Dashboard viewer joined");
 })
 
@@ -42,13 +42,15 @@ io.attach(4567);
 
 io.on('connection', function(socket){
 	console.log("Viewer connected")
-	
 	viewerStats[socket.id] = {
 		"heartCount":0,
 		"duration":0,
 		"active":true,
 		"creator":null
 	}
+
+	//send updated stats to dashboard
+	emitUserStats();
 
 	console.log("TOTAL ACTIVE VIEWERS: " + totalActiveViewers());
 
@@ -63,9 +65,14 @@ io.on('connection', function(socket){
 		viewerStats[socket.id]["heartCount"] = data["heartCount"];
 		console.log("USER HEART COUNT: " + userHeartCount(socket.id))
 		console.log("TOTAL HEARTS: " + totalHeartCount())
+		emitUserStats()
 	})
 
 })
+
+function emitUserStats(){
+	dashboardio.emit('stats', {'totalViewers':totalViewers(), 'activeViewers':totalActiveViewers(), 'totalHearts':totalHeartCount()})
+}
 
 // find total number of viewers who ever logged into this stream
 function totalViewers(){
