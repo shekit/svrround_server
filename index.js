@@ -42,7 +42,7 @@ io.attach(4567);
 
 io.on('connection', function(socket){
 	console.log("Viewer connected")
-
+	
 	viewerStats[socket.id] = {
 		"heartCount":0,
 		"duration":0,
