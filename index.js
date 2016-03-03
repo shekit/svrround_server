@@ -18,13 +18,13 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use(function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
-app.use(cors());
+//app.use(cors());
 
 //app.use('/', routes);
 
@@ -64,7 +64,7 @@ dashboardio.on('connection', function(socket){
 	var id = socket.id
 	viewerStats["/"+id.substr(10)]["admin"] = true;
 
-	console.log(viewerStats["/"+id.substr(10)])
+	//console.log(viewerStats["/"+id.substr(10)])
 })
 
 // SAVE VIEWER stats - eventually move to DB
@@ -82,7 +82,7 @@ io.on('connection', function(socket){
 		"direction":[]
 	}
 
-	console.log(viewerStats)
+	//console.log(viewerStats)
 
 	//send updated stats to dashboard
 	emitUserStats();
@@ -110,7 +110,7 @@ io.on('connection', function(socket){
 
 	socket.on("direction", function(data){
 		viewerStats[socket.id]["direction"].unshift({"x":data.x,"y":data.y,"z":data.z})
-
+		console.log({"x":data.x,"y":data.y,"z":data.z})
 		var avgActiveDirection = findAvgActiveDirection()
 		
 		dashboardio.emit('direction' , avgActiveDirection)
@@ -126,14 +126,16 @@ function findAvgUserDirection(id){
 	var array_length = viewerStats[id]["direction"].length;
 
 	for(var i in viewerStats[id]["direction"]){
-		x += viewerStats[id]["direction"][i]["x"]
-		y += viewerStats[id]["direction"][i]["y"]
-		z += viewerStats[id]["direction"][i]["z"]
+		x += parseFloat(viewerStats[id]["direction"][i]["x"])
+		y += parseFloat(viewerStats[id]["direction"][i]["y"])
+		z += parseFloat(viewerStats[id]["direction"][i]["z"])
 	}
 
 	var avg_x = x/array_length;
 	var avg_y = y/array_length;
 	var avg_z = z/array_length;
+
+	console.log(avg_x, avg_y, avg_z)
 
 	var avg_user_direction = findFinalDirection(avg_x,avg_y,avg_z);
 	return avg_user_direction;
@@ -147,15 +149,16 @@ function findAvgActiveDirection(){
 
 	for(var i in viewerStats){
 		if(viewerStats[i]["active"] && !viewerStats[i]["admin"]){
-			x += viewerStats[i]["direction"][0]["x"]
-			y += viewerStats[i]["direction"][0]["y"]
-			z += viewerStats[i]["direction"][0]["z"]
+			x += parseFloat(viewerStats[i]["direction"][0]["x"])
+			y += parseFloat(viewerStats[i]["direction"][0]["y"])
+			z += parseFloat(viewerStats[i]["direction"][0]["z"])
 		}
 	}
 
 	var avg_x = x/number_of_active_viewers ;
 	var avg_y = y/number_of_active_viewers ;
 	var avg_z = z/number_of_active_viewers ;
+
 
 	var avg_active_direction = findFinalDirection(avg_x,avg_y,avg_z);
 	return avg_active_direction;
@@ -169,15 +172,17 @@ function findAvgTotalDirection(){
 
 	for(var i in viewerStats){
 		if(!viewerStats[i]["admin"]){
-			x += viewerStats[i]["direction"][0]["x"]
-			y += viewerStats[i]["direction"][0]["y"]
-			z += viewerStats[i]["direction"][0]["z"]
+			x += parseFloat(viewerStats[i]["direction"][0]["x"])
+			y += parseFloat(viewerStats[i]["direction"][0]["y"])
+			z += parseFloat(viewerStats[i]["direction"][0]["z"])
 		}
 	}
 
 	var avg_x = x/number_of_total_viewers ;
 	var avg_y = y/number_of_total_viewers ;
 	var avg_z = z/number_of_total_viewers ;
+
+	console.log(avg_x, avg_y, avg_z)
 
 	var avg_total_direction = findFinalDirection(avg_x,avg_y,avg_z);
 	return avg_total_direction;

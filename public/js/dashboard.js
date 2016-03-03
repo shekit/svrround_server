@@ -1,7 +1,8 @@
 $(document).ready(function(){
 	console.log("hello")
 
-	var url = "http://localhost:4567"
+	var socket_url = "http://localhost:4567"
+	var route_url = "http://localhost:3000"
 
 	var totalViewers = $("#totalViewers");
 	var activeViewers = $("#activeViewers");
@@ -14,7 +15,7 @@ $(document).ready(function(){
 	var userDirection = $(".userDirection");
 	var userActive = $(".userActive");
 
-	var socket = io(url+'/dashboard');
+	var socket = io(socket_url+'/dashboard');
 
 	socket.on('stats', function(msg){
 		totalViewers.html(msg['totalViewers']);
@@ -37,8 +38,8 @@ $(document).ready(function(){
 		console.log("hello")
 
 		$.ajax({
-			method: "",
-			url: url + '/user/',
+			method: "POST",
+			url: route_url + '/user/',
 			data: {"id": $(event.target).attr('data-val')}
 		})
 		.done(function(response){
