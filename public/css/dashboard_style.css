@@ -32,9 +32,18 @@ h2 {
 	font-weight: 300;
 }
 
-h3 {
+li {
 	font-weight: 300;
 	font-size: 20px;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.user-text {
+	font-weight: 300;
 }
 
 h4 {
@@ -50,6 +59,7 @@ a:hover, a:active, a:visited {
 }
 
 #direction {
-	font-size: 25px
+	font-size: 35px;
+	font-weight: bold;
 }
 
