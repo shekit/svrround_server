@@ -92,7 +92,6 @@ io.on('connection', function(socket){
 		"heartCount":0,
 		"joined":new Date(),
 		"left":null,
-		"duration": 0,
 		"active":true,
 		"creator":null,
 		"admin":false,
