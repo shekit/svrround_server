@@ -78,9 +78,52 @@ io.on('connection', function(socket){
 		console.log("USER HEART COUNT: " + userHeartCount(socket.id))
 		console.log("TOTAL HEARTS: " + totalHeartCount())
 		emitUserStats()
+	});
+
+	socket.on("direction", function(data){
+
+		var finalDirection = findFinalDirection(data.x, data.y, data.z)
+		
+		dashboardio.emit('direction' , finalDirection)
+
 	})
 
 })
+
+function findFinalDirection(){
+	var x_dir = ""
+	var y_dir = ""
+	var z_dir = ""
+	var final_direction = ""
+
+	// find direction based on parsing values
+	if(x > 0 && x <= 1){
+		x_dir = "Right"
+	} else if(x < 0 && x >= -1){
+		x_dir = "Left"
+	} else {
+		x_dir = ""
+	}
+
+	if(y > 0 && y <= 1){
+		y_dir = "Up"
+	} else if(y < 0 && y >= -1){
+		y_dir = "Down"
+	} else {
+		y_dir = ""
+	}
+
+	if(z > 0 && z <= 1){
+		z_dir = "Front"
+	} else if(z < 0 && z >= -1){
+		z_dir = "Back"
+	} else {
+		z_dir = ""
+	}
+
+	final_direction = z + " " + y + " " + x;
+	return final_direction;
+}
 
 function emitUserStats(){
 	dashboardio.emit('stats', {'totalViewers':totalViewers(), 'activeViewers':totalActiveViewers(), 'totalHearts':totalHeartCount()})
