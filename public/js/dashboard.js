@@ -4,6 +4,7 @@ $(document).ready(function(){
 	var totalViewers = $("#totalViewers");
 	var activeViewers = $("#activeViewers");
 	var totalHearts = $("#totalHearts");
+	var direction = $("#direction")
 
 	var socket = io('http://localhost:4567/dashboard');
 
@@ -11,5 +12,9 @@ $(document).ready(function(){
 		totalViewers.html(msg['totalViewers']);
 		activeViewers.html(msg['activeViewers']);
 		totalHearts.html(msg['totalHearts']);
+	})
+
+	socket.on('direction', function(msg){
+		direction.html(msg);
 	})
 })

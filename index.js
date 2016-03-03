@@ -54,7 +54,8 @@ io.on('connection', function(socket){
 		"duration":0,
 		"active":true,
 		"creator":null,
-		"admin":false
+		"admin":false,
+		"direction":[]
 	}
 
 	console.log(viewerStats)
@@ -81,6 +82,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on("direction", function(data){
+		viewerStats[socket.id]["direction"].unshift({"x":data.x,"y":data.y,"z":data.z})
 
 		var finalDirection = findFinalDirection(data.x, data.y, data.z)
 		
@@ -90,7 +92,71 @@ io.on('connection', function(socket){
 
 })
 
-function findFinalDirection(){
+function findAvgUserDirection(id){
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	var array_length = viewerStats[id]["direction"].length;
+
+	for(var i in viewerStats[id]["direction"]){
+		x += viewerStats[id]["direction"][i]["x"]
+		y += viewerStats[id]["direction"][i]["y"]
+		z += viewerStats[id]["direction"][i]["z"]
+	}
+
+	var avg_x = x/array_length;
+	var avg_y = y/array_length;
+	var avg_z = z/array_length;
+
+	var avg_user_direction = findFinalDirection(avg_x,avg_y,avg_z);
+	return avg_user_direction;
+}
+
+function findAvgActiveDirection(){
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	var number_of_active_viewers = totalActiveViewers()
+
+	for(var i in viewerStats){
+		if(viewerStats[i]["active"] && !viewerStats[i]["admin"]){
+			x += viewerStats[i]["direction"][0]["x"]
+			y += viewerStats[i]["direction"][0]["y"]
+			z += viewerStats[i]["direction"][0]["z"]
+		}
+	}
+
+	var avg_x = x/number_of_active_viewers ;
+	var avg_y = y/number_of_active_viewers ;
+	var avg_z = z/number_of_active_viewers ;
+
+	var avg_active_direction = findFinalDirection(avg_x,avg_y,avg_z);
+	return avg_active_direction;
+}
+
+function findAvgTotalDirection(){
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	var number_of_total_viewers = totalViewers()
+
+	for(var i in viewerStats){
+		if(!viewerStats[i]["admin"]){
+			x += viewerStats[i]["direction"][0]["x"]
+			y += viewerStats[i]["direction"][0]["y"]
+			z += viewerStats[i]["direction"][0]["z"]
+		}
+	}
+
+	var avg_x = x/number_of_total_viewers;
+	var avg_y = y/number_of_total_viewers ;
+	var avg_z = z/number_of_total_viewers ;
+
+	var avg_total_direction = findFinalDirection(avg_x,avg_y,avg_z);
+	return avg_total_direction;
+}
+
+function findFinalDirection(x,y,z){
 	var x_dir = ""
 	var y_dir = ""
 	var z_dir = ""
@@ -121,7 +187,7 @@ function findFinalDirection(){
 		z_dir = ""
 	}
 
-	final_direction = z + " " + y + " " + x;
+	final_direction = z_dir + " " + y_dir + " " + x_dir;
 	return final_direction;
 }
 
