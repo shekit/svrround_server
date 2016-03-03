@@ -36,20 +36,28 @@ var dashboardio = io.of('/dashboard');
 
 dashboardio.on('connection', function(socket){
 	console.log("Dashboard viewer joined");
+	// do this so that dashboard is not considered a viewer
+	var id = socket.id
+	viewerStats["/"+id.substr(10)]["admin"] = true;
+
+	console.log(viewerStats["/"+id.substr(10)])
 })
 
 // SAVE VIEWER stats - eventually move to DB
 var viewerStats = {}
 
-
+// this makes the dashboard a viewer as well, so adjust for it in dashboard socket namespace
 io.on('connection', function(socket){
 	console.log("Viewer connected")
 	viewerStats[socket.id] = {
 		"heartCount":0,
 		"duration":0,
 		"active":true,
-		"creator":null
+		"creator":null,
+		"admin":false
 	}
+
+	console.log(viewerStats)
 
 	//send updated stats to dashboard
 	emitUserStats();
@@ -80,7 +88,17 @@ function emitUserStats(){
 
 // find total number of viewers who ever logged into this stream
 function totalViewers(){
-	return Object.keys(viewerStats).length;
+	// subtract one so dashboard is not considered viewer
+	//return Object.keys(viewerStats).length-1;
+	var totalViewers = 0;
+
+	for(var i in viewerStats){
+		if(!viewerStats[i]["admin"]){
+			totalViewers+=1
+		}
+	}
+
+	return totalViewers;
 }
 
 // total viewers who are currently watching stream
@@ -88,7 +106,7 @@ function totalActiveViewers(){
 	var activeViewers = 0;
 
 	for(var i in viewerStats){
-		if(viewerStats[i]["active"]){
+		if(viewerStats[i]["active"] && !viewerStats[i]["admin"]){
 			activeViewers+=1;
 		}
 	}
@@ -100,7 +118,7 @@ function totalViewersWhoLeft(){
 	var inactiveViewers = 0;
 
 	for(var i in viewerStats){
-		if(!viewerStats[i]["active"]){
+		if(!viewerStats[i]["active"] && !viewerStats[i]["admin"]){
 			inactiveViewers+=1;
 		}
 	}
