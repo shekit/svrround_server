@@ -5,3 +5,51 @@ body {
 #userStats {
 	display: none;
 }
+
+.glyphicon {
+	font-size: 70px;
+	color: #bbb;
+}
+
+.card {
+	border: 1px solid #ccc;
+	min-height: 300px;
+	padding-top: 30px;
+	padding-left:10px;
+	padding-right:10px;
+}
+
+.navbar {
+	border-radius: 0;
+	min-height: 70px;
+}
+
+.navbar-brand {
+	padding: 10px 15px;
+}
+
+h2 {
+	font-weight: 300;
+}
+
+h3 {
+	font-weight: 300;
+	font-size: 20px;
+}
+
+h4 {
+	font-size: 60px;
+}
+
+a{
+	color: #f05a28;
+}
+
+a:hover, a:active, a:visited {
+	color: #d85124;
+}
+
+#direction {
+	font-size: 25px
+}
+
