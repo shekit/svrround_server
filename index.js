@@ -3,6 +3,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var cors = require('cors')
 
 var routes = require('./routes/index');
 
@@ -17,9 +18,32 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+// app.use(function(req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   next();
+// });
 
+app.use(cors());
 
+//app.use('/', routes);
+
+app.get('/', function(req,res,next){
+	res.render("index.jade")
+})
+
+//get individual user stats
+app.post('/user', function(req, res, next){
+	var id = req.body.id;
+	var heartCount = userHeartCount(id);
+	var direction = findAvgUserDirection(id);
+	var active = viewerStats[id]["active"]
+	res.json({
+		"heartCount":heartCount,
+		"direction":direction,
+		"active":active
+	})
+})
 
 //********* SOCKET STUFF  **********//
 
@@ -63,6 +87,9 @@ io.on('connection', function(socket){
 	//send updated stats to dashboard
 	emitUserStats();
 
+	//emit user id to dashboard
+	dashboardio.emit("user",socket.id);
+
 	console.log("TOTAL ACTIVE VIEWERS: " + totalActiveViewers());
 
 	socket.on('disconnect', function(){
@@ -84,9 +111,9 @@ io.on('connection', function(socket){
 	socket.on("direction", function(data){
 		viewerStats[socket.id]["direction"].unshift({"x":data.x,"y":data.y,"z":data.z})
 
-		var finalDirection = findFinalDirection(data.x, data.y, data.z)
+		var avgActiveDirection = findAvgActiveDirection()
 		
-		dashboardio.emit('direction' , finalDirection)
+		dashboardio.emit('direction' , avgActiveDirection)
 
 	})
 
@@ -148,7 +175,7 @@ function findAvgTotalDirection(){
 		}
 	}
 
-	var avg_x = x/number_of_total_viewers;
+	var avg_x = x/number_of_total_viewers ;
 	var avg_y = y/number_of_total_viewers ;
 	var avg_z = z/number_of_total_viewers ;
 
