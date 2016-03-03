@@ -38,11 +38,24 @@ app.post('/user', function(req, res, next){
 	var heartCount = userHeartCount(id);
 	var direction = findAvgUserDirection(id);
 	var active = viewerStats[id]["active"]
-	res.json({
+	var duration = null;
+	if(active) {
+		//return duration in seconds
+		duration = parseInt((new Date - viewerStats[id]["joined"])/1000);
+	} else {
+		duration = parseInt((viewerStats[id]["left"]-viewerStats[id]["joined"])/1000);
+	}
+	res.render('user_details.jade',{
 		"heartCount":heartCount,
 		"direction":direction,
-		"active":active
+		"active":active,
+		"duration": duration
 	})
+})
+
+app.get('/user-list', function(req,res,next){
+	//res.json({"userList": activeUserList()})
+	res.render("user_list.jade",{"users":activeUserList()})
 })
 
 //********* SOCKET STUFF  **********//
@@ -64,6 +77,8 @@ dashboardio.on('connection', function(socket){
 	var id = socket.id
 	viewerStats["/"+id.substr(10)]["admin"] = true;
 
+	emitUserStats();
+
 	//console.log(viewerStats["/"+id.substr(10)])
 })
 
@@ -75,11 +90,17 @@ io.on('connection', function(socket){
 	console.log("Viewer connected")
 	viewerStats[socket.id] = {
 		"heartCount":0,
-		"duration":0,
+		"joined":new Date(),
+		"left":null,
+		"duration": 0,
 		"active":true,
 		"creator":null,
 		"admin":false,
-		"direction":[]
+		"direction":[{
+			"x":0,
+			"y":0,
+			"z":1
+		}]
 	}
 
 	//console.log(viewerStats)
@@ -88,13 +109,14 @@ io.on('connection', function(socket){
 	emitUserStats();
 
 	//emit user id to dashboard
-	dashboardio.emit("user",socket.id);
+	//dashboardio.emit("user",socket.id);
 
 	console.log("TOTAL ACTIVE VIEWERS: " + totalActiveViewers());
 
 	socket.on('disconnect', function(){
 		console.log('viewer disconnected');
 		viewerStats[socket.id]["active"] = false;
+		viewerStats[socket.id]["left"] = new Date(); 
 		console.log("TOTAL VIEWERS: " + totalViewers());
 		console.log("TOTAL ACTIVE VIEWERS: "+ totalActiveViewers())
 		emitUserStats();
@@ -240,6 +262,16 @@ function totalViewers(){
 	}
 
 	return totalViewers;
+}
+
+function activeUserList(){
+	var users = [];
+	for(var i in viewerStats){
+		if(!viewerStats[i]["admin"]){
+			users.push(i)
+		}
+	}
+	return users
 }
 
 // total viewers who are currently watching stream

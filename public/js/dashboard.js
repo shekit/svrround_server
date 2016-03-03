@@ -35,7 +35,6 @@ $(document).ready(function(){
 
 	$("body").on('click', '.user', function(event){
 		event.preventDefault();
-		console.log("hello")
 
 		$.ajax({
 			method: "POST",
@@ -44,12 +43,25 @@ $(document).ready(function(){
 		})
 		.done(function(response){
 			userStats.show();
-			userHeartCount.html(response.heartCount);
-			userDirection.html(response.direction);
-			userActive.html(response.active)
+			userStats.html(response);
 		})
 		.fail(function(response){
 			console.log(response);
+		})
+	})
+
+	$("body").on("click", "#viewUsers", function(event){
+		event.preventDefault();
+
+		$.ajax({
+			method: "GET",
+			url: route_url + '/user-list'
+		})
+		.done(function(response){
+			userList.html(response)
+		})
+		.fail(function(response){
+			console.log(response)
 		})
 	})
 })
