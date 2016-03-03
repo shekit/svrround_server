@@ -1,8 +1,8 @@
 $(document).ready(function(){
 	console.log("hello")
 
-	var socket_url = "http://localhost:4567"
-	var route_url = "http://localhost:3000"
+	var socket_url = "http://162.243.95.15:4567"
+	var route_url = "http://162.243.95.15:3000"
 
 	var totalViewers = $("#totalViewers");
 	var activeViewers = $("#activeViewers");
